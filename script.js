@@ -1,16 +1,30 @@
+const state_checker ={
+    "open" : ["none"],
+    "in-progress" : ["open"],
+    "in-review" : ["in-progress"],
+    "done" : ["in-review"]
+}
+const icon_checker ={
+    "fa-regular fa-circle" : "fa-solid fa-hourglass",
+    "fa-solid fa-hourglass" : "fa-solid fa-pen-to-square",
+    "fa-solid fa-pen-to-square" : "fa-solid fa-check",
+    "fa-solid fa-check" : "fa-solid fa-check"
+}
 const btn = document.getElementById("add_btn");
 const input = document.getElementById("input");
 let ids = 1;
+
 btn.addEventListener('click',()=>{
 
     if(!input.value==''){
 
         const cb1 =  document.getElementById("card-bord1");
-        let button = document.createElement('button');
+        const button = document.createElement('button');
         let new_div = document.createElement('div');
         new_div.appendChild(button);
         button.setAttribute('id','open_btn');
         new_div.setAttribute('draggable','true');
+        new_div.setAttribute('ondragstart','drag(event)');
         new_div.setAttribute('class','dragg');
         new_div.setAttribute('id',`div-id${ids}`);
         ids++;
@@ -28,87 +42,50 @@ btn.addEventListener('click',()=>{
                 }
             }
         })
-        
     }
     else{
         alert("Please enter valid task !");
     } 
-    
-    
     let p_val = document.querySelectorAll('p');
-
     p_val.forEach(val => {
-        console.log
         val.addEventListener('mouseover',()=>{
             if(val.innerHTML ==''){
                 val.innerHTML = "please enter description about the task";
             }
         })
-    
     }); 
-    let soruce = document.querySelectorAll(".dragg");
-    let target = document.querySelector(".box2");
-    let target2 = document.querySelector(".box3");
-    let target3 = document.querySelector(".box4");
-
-    soruce.forEach(soruces => {
-        soruces.addEventListener('dragstart',(e)=>{
-            e.dataTransfer.setData('text/plain',e.target.id);
-            
-        });    
-    });
-    
-    
-    target.addEventListener('dragover',(e)=>{
-        if(e.target.id=='card-bord2'){
-            e.preventDefault();
-        }
-    })  
-    
-    target.addEventListener('drop',(e)=>{
-        const soruceId = e.dataTransfer.getData('text/plain');
-        const ele = document.getElementById(soruceId);
-        if((e.target.id)=='card-bord2' && ele.parentNode.className=='box1'){
-            e.preventDefault();
-            document.querySelector(`#${soruceId} i`).className = "fa-solid fa-hourglass";
-            e.target.appendChild(document.getElementById(soruceId));
-        }   
-    })  
-    
-    target2.addEventListener('dragover',(e)=>{
-        if(e.target.id=='card-bord3'){
-            e.preventDefault();
-        }
-    })  
-
-    target2.addEventListener('drop',(e)=>{
-        const soruceId = e.dataTransfer.getData('text/plain');
-        const ele = document.getElementById(soruceId);
-        
-        if((e.target.id)=='card-bord3' && ele.parentNode.className=='box2'){
-            e.preventDefault();
-            document.querySelector(`#${soruceId} i`).className = 'fa-solid fa-pen-to-square';
-            e.target.appendChild(document.getElementById(soruceId));
-        }
-    })  
-
-    target3.addEventListener('dragover',(e)=>{
-        if(e.target.id=='card-bord4'){
-            e.preventDefault();
-        }
-    })  
-
-    target3.addEventListener('drop',(e)=>{
-        const soruceId = e.dataTransfer.getData('text/plain');
-        const ele = document.getElementById(soruceId);
-        
-        if((e.target.id)=='card-bord4' && ele.parentNode.className=='box3'){
-            e.preventDefault();
-            document.querySelector(`#${soruceId} i`).className = 'fa-solid fa-check';
-            e.target.appendChild(document.getElementById(soruceId));
-        }
-    })  
-
-    
 })
 
+function drag(e){
+    e.dataTransfer.setData('text/plain',e.target.id);
+}
+function dragover(e,ele){
+    if(e.target==ele && e.target!=''){
+    //     console.log(typeof ele);
+    //     console.log(typeof e.target);
+        e.preventDefault();
+    }
+}
+
+function drop(e) {
+    e.preventDefault();
+    const soruceId = e.dataTransfer.getData('text/plain');
+    const task_id = document.getElementById(soruceId).parentNode.parentNode.id;
+    const state_id = document.getElementById(e.target.id).parentNode.id;
+
+    if(state_checker[state_id].includes(task_id)){
+        icon_changer(soruceId);
+        e.target.appendChild(document.getElementById(soruceId));
+    }
+    else{
+        alert(`You can't add from "${task_id}" section to "${state_id}" section`);
+    }
+}
+
+function icon_changer(id){
+    const icons = document.querySelectorAll(`#${id} i`);
+    icons.forEach(ele=>{
+        ele.className = icon_checker[ele.className];
+    })
+    
+}
